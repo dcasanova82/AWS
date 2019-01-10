@@ -3,7 +3,6 @@ import boto3
 ec2 = boto3.resource('ec2')
 security_groups = ec2.security_groups.all()
 
-
 ip_add = '195.26.158.190/32'
 
 
@@ -20,13 +19,11 @@ def search_groups_by_ip(ip):
                         fromPort = rule['FromPort']
                         toPort = rule['ToPort']
                         protocol = rule['IpProtocol']
-                        print(security_group.group_id, security_group.group_name, protocol, fromPort, toPort, ip_address['CidrIp'])
-                        # security_group.revoke_ingress(CidrIp=ip, IpProtocol=rule['IpProtocol'], FromPort=rule['FromPort'], ToPort=rule['ToPort'])
+                        print(security_group.group_id, security_group.group_name, protocol, fromPort, toPort,
+                              ip_address['CidrIp'])
                 else:
                     break
     print('IP not found in Security Groups')
 
-search_groups_by_ip(ip_add)
 
-# sec_group = ec2.SecurityGroup('sg-233bde4a').revoke_ingress(CidrIp='195.26.158.190/32', IpProtocol='tcp', FromPort=0, ToPort=65535)
-# print(sec_group.group_name)
+search_groups_by_ip(ip_add)
