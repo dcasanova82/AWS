@@ -21,6 +21,5 @@ def lambda_handler(event, context):
         to=int(round(datetime.now().timestamp() * 1000)),
         destination='lamark-log-stream',
         destinationPrefix=event["logGroupName"]+'/'+get_date_path()
-    )
-
-    print("Response of logs-to-s3 lambda function: " + response['taskId'])
+        )
+    return 'Task Id: '+response['taskId']
