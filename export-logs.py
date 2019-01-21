@@ -23,4 +23,4 @@ def lambda_handler(event, context):
         destinationPrefix=event["logGroupName"]+'/'+get_date_path()
     )
 
-    print("Response of logs-to-s3 lambda function: " + response)
+    print("Response of logs-to-s3 lambda function: " + response['taskId'])
