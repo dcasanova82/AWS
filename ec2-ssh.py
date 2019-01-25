@@ -15,23 +15,41 @@ def get_instance_name(id):
             return tag['Value']
 
 
-def find_username(host, key):
-    usernames = ['centos', 'ec2-user', 'ubuntu']
-    for username in usernames:
-        # print("Trying with username ", username)
+def find_os_distro(host, key):
+    username_list = ['centos', 'ec2-user', 'ubuntu']
+    for username in username_list:
         try:
-            client.connect(hostname=host, username=username, pkey=key)
+            client.connect(hostname=host, username=username)
             print("Connected to " + instance_name)
             print("Username: " + username)
-            if username in ('centos', 'ec2-user'):
-                command = "cat /etc/system-release"
-                return command
+            if username == 'centos':
+                os_distro = "centos"
+            elif username == 'ec2-user':
+                os_distro = "amazon"
             elif username == 'ubuntu':
-                command = "lsb_release -a"
-                return command
+                os_distro = "ubuntu"
+            return os_distro
         except paramiko.ssh_exception.AuthenticationException:
             pass
-            # print("User ", username, " invalid")
+
+
+def commands_exec(os):
+    if os in ('amazon', 'centos'):
+        commands = ['cat /etc/system-release',
+                    'sudo yum erase ntp*',
+                    'sudo yum -y install chrony',
+                    'sudo service chronyd start',
+                    'sudo chkconfig chronyd on',
+                    'chronyc sources -v']
+    elif os == 'ubuntu':
+        commands = ['lsb_release -a',
+                    'clear']
+    for command in commands:
+        stdin, stdout, stderr = client.exec_command(command, get_pty=True)
+        output = stdout.read().decode('utf-8')
+        print(output)
+        error = stderr.read().decode('utf-8')
+        print(error)
 
 
 for instance in instances:
@@ -45,15 +63,13 @@ for instance in instances:
 
     # define Paramiko objects
     key = paramiko.RSAKey.from_private_key_file(key_file)
-    client = paramiko.SSHClient()
+    client = paramiko.SSHClient().invoke_shell(term='vt100', width=80, height=24)
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    os_distro = find_os_distro(host, key)
+    commands_exec(os_distro)
 
-    # print("Connecting to " + instance_name)
-    command = find_username(host, key)
-    print("Executing {}".format(command))
-    stdin, stdout, stderr = client.exec_command(command)
-    print(stdout.read().decode('utf-8'))
-    print(stderr.read().decode('utf-8'))
+
+
 
 
 
