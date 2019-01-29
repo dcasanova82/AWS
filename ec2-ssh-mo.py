@@ -10,11 +10,11 @@ def main():
     username = "ec2-user"
 
     # define data folder and file
-    data_folder = Path("C:/Users/dcasa")
+    data_folder = Path("/opt/scripts/uploadBillingSoapLog")
     key_file = data_folder / key_name
 
     # define download folder
-    download_folder = Path("D:/soapLog.zip")
+    download_folder = Path("/opt/scripts/uploadBillingSoapLog/soapLog.zip")
 
     # define Paramiko objects
     key = paramiko.RSAKey.from_private_key_file(key_file)
