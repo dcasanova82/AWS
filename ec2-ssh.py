@@ -19,7 +19,7 @@ def find_os_distro(host, key):
     username_list = ['centos', 'ec2-user', 'ubuntu']
     for username in username_list:
         try:
-            client.connect(hostname=host, username=username)
+            client.connect(hostname=host, username=username, pkey=key)
             print("Connected to " + instance_name)
             print("Username: " + username)
             if username == 'centos':
@@ -36,16 +36,12 @@ def find_os_distro(host, key):
 def commands_exec(os):
     if os in ('amazon', 'centos'):
         commands = ['cat /etc/system-release',
-                    'sudo yum erase ntp*',
-                    'sudo yum -y install chrony',
-                    'sudo service chronyd start',
-                    'sudo chkconfig chronyd on',
                     'chronyc sources -v']
     elif os == 'ubuntu':
         commands = ['lsb_release -a',
-                    'clear']
+                    '']
     for command in commands:
-        stdin, stdout, stderr = client.exec_command(command, get_pty=True)
+        stdin, stdout, stderr = client.exec_command(command)
         output = stdout.read().decode('utf-8')
         print(output)
         error = stderr.read().decode('utf-8')
@@ -63,7 +59,7 @@ for instance in instances:
 
     # define Paramiko objects
     key = paramiko.RSAKey.from_private_key_file(key_file)
-    client = paramiko.SSHClient().invoke_shell(term='vt100', width=80, height=24)
+    client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     os_distro = find_os_distro(host, key)
     commands_exec(os_distro)
